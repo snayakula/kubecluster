@@ -1,0 +1,26 @@
+name: Build and Push Docker Image to ACR
+
+on:
+  push:
+   # branches: [ main ]  # Change 'main' to your desired branch
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest  # Or your preferred runner
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure ACR
+        uses: azure/acr-login@v1
+        with:
+          name: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/iempui/iempui .
+
+      - name: Push Docker image to ACR
+        run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/iempui/iempui
