@@ -19,6 +19,6 @@ spec:
         image: kube3acr.azurecr.io/iempui
         imagePullPolicy: IfNotPresent
       imagePullSecrets:
-        - name: acr-secret
+        - name: kube3ACR
       ports:
       - containerPort: 3000
