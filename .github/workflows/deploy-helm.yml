@@ -1,0 +1,60 @@
+name: Deploy with Helm to Kubernetes
+
+on:
+  pull_request:
+  #  branches: [ main ]  # Change 'main' to your desired branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Login to Azure ACR
+        uses: azure/acr-login@v1
+        with:
+          name: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Download kubectl config
+        uses: kubernetes-sigs/kubeconfig-download@v1
+        with:
+          cluster-name: my-cluster  # Replace with your cluster name
+
+      - name: Verify kubectl config
+        run: |
+          kubectl cluster-info
+
+      - name: Pull image from ACR
+        run: |
+          ACR_REGISTRY=${{ secrets.ACR_LOGIN_SERVER }}
+          IMAGE_NAME=iempui  # Replace with your image name and version
+          docker pull $ACR_REGISTRY/$IMAGE_NAME
+
+      - name: Install Helm if not available (optional)
+        run: |
+          if ! which helm >/dev/null; then
+            curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/v3.9.3/scripts/get-helm.sh
+            chmod +x get_helm.sh
+            ./get_helm.sh
+          fi
+        shell: bash
+
+      - name: Deploy Helm Chart (assuming Chart.yaml is in the root)
+        run: |
+          helm upgrade --install <your-chart-name> . \
+            --set image.name=${{ secrets.ACR_LOGIN_SERVER }}/$IMAGE_NAME \
+           # --namespace <your-namespace>  # Optional: Specify namespace
+
+          # For a separate Chart.yaml location:
+          # helm upgrade --install <your-chart-name> <path-to-chart-directory> \
+          #   --set image.name=${{ secrets.ACR_LOGIN_SERVER }}/$IMAGE_NAME \
+          #   --namespace <your-namespace>
+
+env:
+  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}  # Replace with your ACR login server
+  ACR_USERNAME: ${{ secrets.ACR_USERNAME }}  # Replace with your AAD service principal client ID
+  ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}  # Replace with your AAD service principal client secret
