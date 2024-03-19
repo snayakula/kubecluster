@@ -20,5 +20,5 @@ spec:
         imagePullPolicy: IfNotPresent
       imagePullSecrets:
         - name: acr-secret
-        ports:
-        - containerPort: 3000
+      ports:
+      - containerPort: 3000
