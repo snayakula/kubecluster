@@ -1,8 +1,8 @@
 name: Deploy with Helm to Kubernetes
 
 on:
-  pull_request:
-  #  branches: [ main ]  # Change 'main' to your desired branch
+  push:
+    branches: [ main ]  # Change 'main' to your desired branch
 
 jobs:
   deploy:
