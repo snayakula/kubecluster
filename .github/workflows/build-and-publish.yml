@@ -20,7 +20,9 @@ jobs:
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/iempui/iempui .
+        run: docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/iempui .
 
       - name: Push Docker image to ACR
-        run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/iempui/iempui
+        run: |
+          docker tag iempui:latest ${{ secrets.ACR_LOGIN_SERVER }}/iempui
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/iempui
